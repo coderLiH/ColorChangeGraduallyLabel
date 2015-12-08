@@ -38,7 +38,7 @@
     [self.left addGestureRecognizer:[[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(switchContent:)]];
     [self.middle addGestureRecognizer:[[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(switchContent:)]];
     [self.right addGestureRecognizer:[[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(switchContent:)]];
-    self.selLabel = self.middle;
+    self.selLabel = self.left;
     self.left.aniDuration = 0.4;
     self.middle.aniDuration = 0.4;
     self.right.aniDuration = 0.4;
@@ -47,26 +47,33 @@
     
     self.trView = [[UIView alloc] init];
     [self.scrollView addSubview:self.trView];
-    self.trView.width = self.middle.width;
+    self.trView.width = self.left.width;
     self.trView.height = 3;
-    self.trView.centerX = self.view.centerX;
     self.trView.y = self.scrollView.height-self.trView.height;
     self.trView.backgroundColor = [UIColor colorWithRed:1. green:111./255 blue:55./255 alpha:1.0];
     
     self.labels = @[self.left,self.middle,self.right];
 }
+- (void)viewDidAppear:(BOOL)animated {
+    [super viewDidAppear:animated];
+    self.trView.x = self.left.x;
+}
 
 - (void)switchContent:(UITapGestureRecognizer *)tap {
+//    self.trView.x = self.selLabel.x;
+//    self.trView.width = self.selLabel.width;
     LHAniLabel *label = (LHAniLabel *)tap.view;
-    [UIView animateWithDuration:0.4 animations:^{
-        self.trView.x = tap.view.x;
-        self.trView.width = tap.view.width;
-    } completion:^(BOOL finished) {
-        self.selLabel = label;
-    }];
+//    [UIView animateWithDuration:0.4 animations:^{
+//        self.trView.x = tap.view.x;
+//        self.trView.width = tap.view.width;
+//    } completion:^(BOOL finished) {
+//        self.selLabel = label;
+//    }];
     
-    [self.selLabel autoChangeTextColor:self.selLabel.fromColor];
-    [label autoChangeTextColor:label.toColor];
+//    [self.selLabel autoChangeTextColor:self.selLabel.fromColor];
+//    [label autoChangeTextColor:label.toColor];
+    
+    self.selLabel = label;
     
     if ([label isEqual:self.left]) {
         [self.collectionView scrollToItemAtIndexPath:[NSIndexPath indexPathForItem:0 inSection:0] atScrollPosition:UICollectionViewScrollPositionNone animated:YES];
@@ -87,21 +94,13 @@
     return cell;
 }
 
-BOOL mark = 0;
-
-- (void)collectionView:(UICollectionView *)collectionView willDisplayCell:(UICollectionViewCell *)cell forItemAtIndexPath:(NSIndexPath *)indexPath {
-    if (indexPath.item == 0 && !mark) {
-        mark = 1;
-        [self.collectionView scrollToItemAtIndexPath:[NSIndexPath indexPathForItem:1 inSection:0] atScrollPosition:UICollectionViewScrollPositionNone animated:NO];
-    }
-}
-
-
 - (void)scrollViewDidScroll:(UIScrollView *)scrollView {
     
-    if (scrollView.contentOffset.x == [UIScreen mainScreen].bounds.size.width) {
-        return;
-    }
+//    if (scrollView.contentOffset.x == 0 || scrollView.contentOffset.x == [UIScreen mainScreen].bounds.size.width ||  scrollView.contentOffset.x == 2*[UIScreen mainScreen].bounds.size.width) {
+//        self.trView.width = self.selLabel.width;
+//        self.trView.x = self.selLabel.x;
+//        return;
+//    }
     if (scrollView.contentOffset.x > 0 && scrollView.contentOffset.x < 2*[UIScreen mainScreen].bounds.size.width) {
         NSInteger page1 = scrollView.contentOffset.x/[UIScreen mainScreen].bounds.size.width;
         NSInteger page2 = scrollView.contentOffset.x/[UIScreen mainScreen].bounds.size.width + 1;
@@ -145,5 +144,8 @@ BOOL mark = 0;
         self.trView.width = self.right.width*(1-scale);
         self.trView.x = self.right.x+(self.right.width-self.trView.width);
     }
+}
+- (void)scrollViewDidEndScrollingAnimation:(UIScrollView *)scrollView {
+    
 }
 @end
